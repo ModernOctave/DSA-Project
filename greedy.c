@@ -94,7 +94,7 @@ struct Tree *max_value_tree(void) {
 }
 
 int is_time_left(int time_required) {
-	if (time+time_required < time_limit) {
+	if (time+time_required <= time_limit) {
 		return 1;
 	}
 	else {
