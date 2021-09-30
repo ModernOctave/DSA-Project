@@ -142,13 +142,16 @@ struct Tree *tree_at(int x, int y) {
 
 void domino_effect(struct Tree *tree) {
 	for (int i = 1; i <= tree->height; ++i) {
-		if (is_tree(tree->x, tree->y+i)) {
-			struct Tree *tree_under = tree_at(tree->x, tree->y+i);
+		if (is_tree(tree->x, tree->y-i)) {
+			struct Tree *tree_under = tree_at(tree->x, tree->y-i);
 			int weight_above = tree->unit_weight * tree->height * tree->thickness;
 			int weight_below = tree_under->unit_weight * tree_under->height * tree_under->thickness;
 			if (weight_above > weight_below) {
 				tree_under->status = 0;
 				domino_effect(tree_under);
+			}
+			else {
+				return;
 			}
 		}
 	}
@@ -156,7 +159,8 @@ void domino_effect(struct Tree *tree) {
 
 void cut(struct Tree *tree) {
 	if (is_time_left(tree->thickness)) {
-		printf("cut up\n");
+		// printf("cut up\n");
+		printf("cut down\n");
 		time += tree->thickness;
 		tree->status=0;
 		domino_effect(tree);
