@@ -10,6 +10,8 @@ struct Tree {
 	int unit_weight;
 	int unit_value;
 	int time;
+	int value;
+	int weight;
 	float rate;
 	int status;
 };
@@ -35,7 +37,8 @@ void greedy_navigate(void);
 void greedy_approach(void);
 int is_tree(int x, int y);
 struct Tree *tree_at(int x, int y);
-void domino_effect(struct Tree *tree);
+void domino_effect(int side, struct Tree *tree);
+int domino_value(int side, struct Tree *tree);
 
 // Main loop
 int main(int argc, char const *argv[]) {
@@ -58,13 +61,14 @@ void read_input(void) {
 		scanf(" %d", &trees[i].unit_weight);
 		scanf(" %d", &trees[i].unit_value);
 		trees[i].status = 1;
+		trees[i].value = trees[i].unit_value * trees[i].height * trees[i].thickness;
+		trees[i].weight = trees[i].unit_weight * trees[i].height * trees[i].thickness;
 	}
 }
 
 void greedy_evaluate(struct Tree *tree) {
-	int value = tree->unit_value*tree->height*tree->thickness;
 	tree->time = abs(tree->x-position.x)+abs(tree->y-position.y)+tree->thickness;
-	tree->rate = ((float)value)/tree->time;
+	tree->rate = ((float)tree->value)/tree->time;
 }
 
 void greedy_evaluate_all(void) {
@@ -140,30 +144,161 @@ struct Tree *tree_at(int x, int y) {
 	}
 }
 
-void domino_effect(struct Tree *tree) {
-	for (int i = 1; i <= tree->height; ++i) {
-		if (is_tree(tree->x, tree->y-i)) {
-			struct Tree *tree_under = tree_at(tree->x, tree->y-i);
-			int weight_above = tree->unit_weight * tree->height * tree->thickness;
-			int weight_below = tree_under->unit_weight * tree_under->height * tree_under->thickness;
-			if (weight_above > weight_below) {
-				tree_under->status = 0;
-				domino_effect(tree_under);
+void domino_effect(int side, struct Tree *tree) {
+	switch (side) {
+		case 0:
+			for (int i = 1; i <= tree->height; ++i) {
+				if (is_tree(tree->x, tree->y+i)) {
+					struct Tree *tree_under = tree_at(tree->x, tree->y+i);
+					if (tree->weight > tree_under->weight) {
+						tree_under->status = 0;
+						domino_effect(side, tree_under);
+					}
+					else {
+						return;
+					}
+				}
 			}
-			else {
-				return;
+			break;
+		case 1:
+			for (int i = 1; i <= tree->height; ++i) {
+				if (is_tree(tree->x+i, tree->y)) {
+					struct Tree *tree_under = tree_at(tree->x+i, tree->y);
+					if (tree->weight > tree_under->weight) {
+						tree_under->status = 0;
+						domino_effect(side, tree_under);
+					}
+					else {
+						return;
+					}
+				}
 			}
-		}
+			break;
+		case 2:
+			for (int i = 1; i <= tree->height; ++i) {
+				if (is_tree(tree->x, tree->y-i)) {
+					struct Tree *tree_under = tree_at(tree->x, tree->y-i);
+					if (tree->weight > tree_under->weight) {
+						tree_under->status = 0;
+						domino_effect(side, tree_under);
+					}
+					else {
+						return;
+					}
+				}
+			}
+			break;
+		case 3:
+			for (int i = 1; i <= tree->height; ++i) {
+				if (is_tree(tree->x-i, tree->y)) {
+					struct Tree *tree_under = tree_at(tree->x-i, tree->y);
+					if (tree->weight > tree_under->weight) {
+						tree_under->status = 0;
+						domino_effect(side, tree_under);
+					}
+					else {
+						return;
+					}
+				}
+			}
+			break;
+		default:
+			printf("Internal error! Incorrect use of function domino_effect\n");
+			break;
 	}
+}
+
+int domino_value(int side, struct Tree *tree) {
+	int value = 0;
+	switch (side) {
+		case 0:
+			for (int i = 1; i <= tree->height; ++i) {
+				if (is_tree(tree->x, tree->y+i)) {
+					struct Tree *tree_under = tree_at(tree->x, tree->y+i);
+					if (tree->weight > tree_under->weight) {
+						value+=tree->value;
+					}
+					else {
+						return value;
+					}
+				}
+			}
+			break;
+		case 1:
+			for (int i = 1; i <= tree->height; ++i) {
+				if (is_tree(tree->x+i, tree->y)) {
+					struct Tree *tree_under = tree_at(tree->x+i, tree->y);
+					if (tree->weight > tree_under->weight) {
+						value+=tree->value;
+					}
+					else {
+						return value;
+					}
+				}
+			}
+			break;
+		case 2:
+			for (int i = 1; i <= tree->height; ++i) {
+				if (is_tree(tree->x, tree->y-i)) {
+					struct Tree *tree_under = tree_at(tree->x, tree->y-i);
+					if (tree->weight > tree_under->weight) {
+						value+=tree->value;
+					}
+					else {
+						return value;
+					}
+				}
+			}
+			break;
+		case 3:
+			for (int i = 1; i <= tree->height; ++i) {
+				if (is_tree(tree->x-i, tree->y)) {
+					struct Tree *tree_under = tree_at(tree->x-i, tree->y);
+					if (tree->weight > tree_under->weight) {
+						value+=tree->value;
+					}
+					else {
+						return value;
+					}
+				}
+			}
+			break;
+		default:
+			printf("Internal error! Incorrect use of function domino_value\n");
+			break;
+	}
+	return value;
 }
 
 void cut(struct Tree *tree) {
 	if (is_time_left(tree->thickness)) {
-		// printf("cut up\n");
-		printf("cut down\n");
+		int maxdir = 0;
+		int max = 0;
+		int temp = 0;
+		for (int i = 0; i < 4; ++i) {
+			temp = domino_value(i, tree);
+			if (temp > max) {
+				max = temp;
+				maxdir = i;
+			}
+		}
+		switch (maxdir) {
+			case 0:
+				printf("cut up\n");
+				break;
+			case 1:
+				printf("cut right\n");
+				break;
+			case 2:
+				printf("cut down\n");
+				break;
+			case 3:
+				printf("cut left\n");
+				break;
+		}
 		time += tree->thickness;
-		tree->status=0;
-		domino_effect(tree);
+		tree->status = 0;
+		domino_effect(maxdir, tree);
 	}
 }
 
