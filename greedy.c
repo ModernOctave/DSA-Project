@@ -1,3 +1,15 @@
+/*
+						 DSA Lab Project
+	Lumberjack Problem [https://www.optil.io/optilion/problem/3000]
+
+				  Algorithmic Crushers (Group 14)
+
+				 Chirumamilla Bharghav (200010010)
+				   Josyula Abhishek (200010021)
+				      M V Karthik (200010030)
+				       Om Patil (200010036)
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 
