@@ -159,7 +159,7 @@ struct Tree *tree_at(int x, int y) {
 void domino_effect(int side, struct Tree *tree) {
 	switch (side) {
 		case 0:
-			for (int i = 1; i <= tree->height; ++i) {
+			for (int i = 1; i < tree->height; ++i) {
 				if (is_tree(tree->x, tree->y+i)) {
 					struct Tree *tree_under = tree_at(tree->x, tree->y+i);
 					if (tree->weight > tree_under->weight) {
