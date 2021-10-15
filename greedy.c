@@ -51,7 +51,7 @@ struct Tree *max_value_tree(void);
 int is_time_left(int time_required);
 void navigate_to(struct Tree *tree);
 void cut(struct Tree *tree);
-void greedy_navigate(struct node *list);
+void greedy_navigate(struct node **list);
 void greedy_approach(void);
 int is_tree(int x, int y);
 struct Tree *tree_at(int x, int y);
@@ -116,7 +116,7 @@ struct Tree *max_value_tree(void) {
 		}
 	}
 	if (max_not_set) {
-		exit(0);
+		return NULL;
 	}
 	return &trees[max];
 }
@@ -435,14 +435,14 @@ int calc_distace(struct Tree *tree1){
 	return tree1->x + tree1->y - position.x - position.y;
 }
 
-struct Tree *closest_tree(struct node *list) {
+struct Tree *closest_tree(struct node **list) {
 	// return closest tree to current position in list
 
-	struct node *curr_node = list->next;
-	struct Tree * close_tree = list->data;
+	struct node *curr_node = (*list)->next;
+	struct Tree * close_tree = (*list)->data;
 	struct Tree * tree;
 	int tree_pos = 0;
-	for(int i = 1;curr_node != list;i++)
+	for(int i = 1;curr_node != *list;i++)
 	{
 		if(calc_distace(curr_node->data) < calc_distace(close_tree)){
 			close_tree = curr_node->data;
@@ -450,22 +450,27 @@ struct Tree *closest_tree(struct node *list) {
 		}
 		curr_node = curr_node->next;
 	}
-	delete_from(list,tree_pos);
+	*list = delete_from(*list,tree_pos);
 	return close_tree;
 }
 
-void greedy_navigate(struct node *list) {
+void greedy_navigate(struct node **list) {
 	struct Tree *greedy_tree = closest_tree(list);
 	navigate_to(greedy_tree);
 	cut(greedy_tree);
 }
 
-struct node *greedy_add(struct node *list) {
+struct node *greedy_add(struct node *list, int *status) {
 	struct Tree *greedy_tree = max_value_tree();
-	sim_navigate_to(greedy_tree);
-	if (is_time_left(greedy_tree->thickness)) {
-		sim_select(greedy_tree);
-		list = insert_beginning(list, greedy_tree);
+	if (greedy_tree) {
+		sim_navigate_to(greedy_tree);
+		if (is_time_left(greedy_tree->thickness)) {
+			sim_select(greedy_tree);
+			list = insert_beginning(list, greedy_tree);
+		}
+	}
+	else {
+		*status = 0;
 	}
 	return list;
 }
@@ -477,9 +482,14 @@ void reset_trees(struct node *list) {
 	int i = 0;
 	do{
 		tree = value_at(list,i);
-		tree->status = 1;
-		curr_node = curr_node->next;
-		i++;
+		if (tree) {
+			tree->status = 1;
+			curr_node = curr_node->next;
+			i++;
+		}
+		else {
+			return;
+		}
 	}while (curr_node!= list);
 }
 
@@ -487,16 +497,17 @@ void greedy_approach(void) {
 	position.x=0;
 	position.y=0;
 	int real_pos_x, real_pos_y, real_time;
-
+	struct node *list;
 	while (is_time_left(1)) {
 		// Create Optimal List
 		real_pos_x = position.x;
 		real_pos_y = position.y;
 		real_time = time;
-		struct node *list = NULL;
-		while (is_time_left(1)) {
+		list = NULL;
+		int status = 1;
+		while (status) {
 			greedy_evaluate_all();
-			list = greedy_add(list);
+			list = greedy_add(list, &status);
 		}
 
 		// Restore the setup
@@ -508,7 +519,7 @@ void greedy_approach(void) {
 
 		// Cut trees in closest greedy way
 		while (list) {
-			greedy_navigate(list);
+			greedy_navigate(&list);
 		}
 
 		delete_list(list);
