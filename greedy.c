@@ -52,6 +52,11 @@ struct Tree *tree_at(int x, int y);
 void domino_effect(int side, struct Tree *tree);
 int domino_value(int side, struct Tree *tree);
 
+// Linked List Function Declarations
+struct node *insert_beginning(struct node *head, struct Tree *data);
+struct Tree *value_at(struct node *head, int pos);
+struct node *delete_from(struct node *head, int pos);
+
 // Main loop
 int main(int argc, char const *argv[]) {
 	read_input();
@@ -119,24 +124,26 @@ int is_time_left(int time_required) {
 }
 
 void navigate_to(struct Tree *tree) {
-	for (int i = 0; i < tree->x-position.x && is_time_left(1); ++i) {
+	while (tree->x > position.x && is_time_left(1) && tree->status) {
 		printf("move right\n");
+		position.x++;
 		time++;
 	}
-	for (int i = 0; i > tree->x-position.x && is_time_left(1); --i) {
+	while (tree->x < position.x && is_time_left(1) && tree->status) {
 		printf("move left\n");
+		position.x--;
 		time++;
 	}
-	for (int i = 0; i < tree->y-position.y && is_time_left(1); ++i) {
+	while (tree->y > position.y && is_time_left(1) && tree->status) {
 		printf("move up\n");
+		position.y++;
 		time++;
 	}
-	for (int i = 0; i > tree->y-position.y && is_time_left(1); --i) {
+	while (tree->y < position.y && is_time_left(1) && tree->status) {
 		printf("move down\n");
+		position.y--;
 		time++;
 	}
-	position.x = tree->x;
-	position.y = tree->y;
 }
 
 int is_tree(int x, int y) {
@@ -314,17 +321,195 @@ void cut(struct Tree *tree) {
 	}
 }
 
-void greedy_navigate(void) {
-	struct Tree *greedy_tree = max_value_tree();
+void select(struct Tree *tree) {
+	int maxdir = 0;
+	int max = 0;
+	int temp = 0;
+	for (int i = 0; i < 4; ++i) {
+		temp = domino_value(i, tree);
+		if (temp > max) {
+			max = temp;
+			maxdir = i;
+		}
+	}
+	time += tree->thickness;
+	tree->status = 0;
+	domino_effect(maxdir, tree);
+}
+
+struct Tree *closest_tree(struct node *list) {
+	// return closest tree to current position in list
+}
+
+void greedy_navigate(struct node *list) {
+	struct Tree *greedy_tree = closest_tree();
 	navigate_to(greedy_tree);
 	cut(greedy_tree);
+}
+
+struct node *greedy_add(struct node *list) {
+	struct Tree *greedy_tree = max_value_tree();
+	navigate_to(greedy_tree);
+	if (is_time_left(tree->thickness)) {
+		select(greedy_tree);
+		list = insert_beginning(list, greedy_tree);
+	}
+	return list;
+}
+
+reset_trees(struct node *list) {
+	// Reset status of all trees in list to 1
 }
 
 void greedy_approach(void) {
 	position.x=0;
 	position.y=0;
+	int real_pos_x, real_pos_y, real_time;
+
 	while (is_time_left(1)) {
-		greedy_evaluate_all();
-		greedy_navigate();
+		// Create Optimal List
+		real_pos_x = position.x;
+		real_pos_y = position.y;
+		real_time = time;
+		struct node *list;
+		while (is_time_left(1)) {
+			greedy_evaluate_all();
+			list = greedy_add(list);
+		}
+
+		// Restore the setup
+		position.x = real_pos_x;
+		position.y = real_pos_y;
+		time = real_time;
+		reset_trees(list);
+		// Reset domino trees too
+
+		// Cut trees in closest greedy way
+		while (list) {
+			greedy_navigate(list);
+		}
 	}
+}
+
+// Linked List Implementation
+struct node {
+	struct Tree *data;
+	struct node *next;
+};
+
+struct node *create_node(void) {
+	struct node *newnode = (struct node*) malloc(sizeof(struct node));
+	newnode->data=NULL;
+	newnode->next=NULL;
+	return newnode;
+}
+
+struct node *add_to_empty_list(struct node *head, struct Tree *data) {
+	struct node *newnode;
+	newnode = create_node();
+	newnode->data = data;
+	head = newnode;
+	newnode->next = head;
+	return head;
+}
+
+struct node *insert_beginning(struct node *head, struct Tree *data) {
+	if (head == NULL) {
+		head = add_to_empty_list(head, data);
+	}
+	else {
+		struct node *last = head;
+		while (last->next != head) {
+			last = last->next;
+		}
+		struct node *newnode = create_node();
+		newnode->data = data;
+		newnode->next = head;
+		head = newnode;
+		last->next = newnode;
+	}
+	return head;
+}
+
+struct Tree *value_at(struct node *head, int pos) {
+	if (head == NULL) {
+		return NULL;
+	}
+	else {
+		struct node *currentnode = head;
+		for (int i = 0; i < pos; ++i) {
+			if (currentnode->next == head) {
+				return NULL;
+			}
+			else {
+				currentnode = currentnode->next;
+			}
+		}
+		return currentnode->data;
+	}
+}
+
+struct node *delete_beginning(struct node *head) {
+	if (head == NULL) {
+		printf("Cannot delete, list is empty!\n\n");
+	}
+	else {
+		struct node *delete;
+		delete = head;
+		if (delete->next == head) {
+			head = NULL;
+		}
+		else {
+			struct node *last;
+			last = head;
+			while (last->next != head) {
+				last = last->next;
+			}
+			head = delete->next;
+			last->next = delete->next;
+		}
+		free(delete);
+	}
+	return head;
+}
+
+struct node *delete_from(struct node *head, int pos) {
+	if (head == NULL) {
+		printf("Cannot delete, list is empty!\n\n");
+	}
+	else {
+		struct node *delete;
+		delete = head;
+		if (delete->next == head) {
+			if (pos == 0) {
+				head = NULL;
+				free(delete);
+			}
+			else {
+				printf("Invalid position!\n\n");
+			}
+		}
+		else {
+			if (pos < 0) {
+				printf("Invalid position!\n\n");
+			}
+			else if (pos == 0) {
+				head = delete_beginning(head);
+			}
+			else {
+				struct node *prev;
+				for (int i = 0; i < pos; ++i) {
+					prev = delete;
+					delete = delete->next;
+					if (delete == head) {
+						printf("Invalid position!\n\n");
+						return head;
+					}
+				}
+				prev->next = delete->next;
+				free(delete);
+			}
+		}
+	}
+	return head;
 }

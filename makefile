@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := run
 
-CC = gcc
+CC = gcc 
 
 SRCS := greedy.c
 
