@@ -349,18 +349,17 @@ struct Tree *closest_tree(struct node *list) {
 	int tree_pos = 0;
 	for(int i = 1;curr_node != list;i++)
 	{
-		
 		tree = value_at(list,i);
-		close_tree = calc_distace(last) < calc_distace(tree) ? tree: close_tree;
-		tree_pos = calc_distace(last) < calc_distace(tree) ? i : tree_pos; 
+		close_tree = calc_distace(curr_node) < calc_distace(tree) ? tree: close_tree;
+		tree_pos = calc_distace(curr_node) < calc_distace(tree) ? i : tree_pos;
 		curr_node = curr_node->next;
 	}
-	delete_from(list,tree_pos)
+	delete_from(list,tree_pos);
 	return close_tree;
 }
 
 void greedy_navigate(struct node *list) {
-	struct Tree *greedy_tree = closest_tree();
+	struct Tree *greedy_tree = closest_tree(list);
 	navigate_to(greedy_tree);
 	cut(greedy_tree);
 }
@@ -377,12 +376,15 @@ struct node *greedy_add(struct node *list) {
 
 reset_trees(struct node *list) {
 	// Reset status of all trees in list to 1
-	struct node *last = list;
-	while (list->next != list)
-	{
-		
-	}
-	
+	struct node *curr_node = list;
+	struct Tree * tree;
+	int i;
+	do{
+		tree = value_at(list,i);
+		tree->status = 1;
+		curr_node = curr_node->next;
+		i++;
+	}while (curr_node!= list);
 }
 
 void greedy_approach(void) {
