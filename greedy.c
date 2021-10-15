@@ -338,20 +338,20 @@ void select(struct Tree *tree) {
 }
 
 int calc_distace(struct Tree *tree1){
-	return tree1->x + tree1->y - position.x - position.y
+	return tree1->x + tree1->y - position.x - position.y;
 }
 struct Tree *closest_tree(struct node *list) {
 	// return closest tree to current position in list
 
 	struct node *curr_node = list->next;
-	struct Tree * close_tree = list;
+	struct Tree * close_tree = list->data;
 	struct Tree * tree;
 	int tree_pos = 0;
 	for(int i = 1;curr_node != list;i++)
 	{
-		tree = value_at(list,i);
-		close_tree = calc_distace(curr_node) < calc_distace(tree) ? tree: close_tree;
-		tree_pos = calc_distace(curr_node) < calc_distace(tree) ? i : tree_pos;
+		tree = va(list,i);
+		close_tree = calc_distace(curr_node->data) < calc_distace(close_tree) ? tree: close_tree;
+		tree_pos = calc_distace(value_at(curr_node->data)) < calc_distace(close_tree) ? i : tree_pos;
 		curr_node = curr_node->next;
 	}
 	delete_from(list,tree_pos);
@@ -378,7 +378,7 @@ reset_trees(struct node *list) {
 	// Reset status of all trees in list to 1
 	struct node *curr_node = list;
 	struct Tree * tree;
-	int i;
+	int i = 0;
 	do{
 		tree = value_at(list,i);
 		tree->status = 1;
