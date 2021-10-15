@@ -337,8 +337,23 @@ void select(struct Tree *tree) {
 	domino_effect(maxdir, tree);
 }
 
+int calc_distace(struct Tree *tree1){
+	return tree1->x + tree1->y - position.x - position.y
+}
 struct Tree *closest_tree(struct node *list) {
 	// return closest tree to current position in list
+
+	if(!list)	return;
+	struct node *curr_node = list->next;
+	struct Tree * close_tree = list;
+	for(int i = 0;curr_node != list;i++)
+	{
+		
+		struct Tree * tree = value_at(list,i);
+		close_tree = calc_distace(last)< calc_distace(tree) ? tree: close_tree;
+		curr_node = curr_node->next;
+	}
+	return close_tree;
 }
 
 void greedy_navigate(struct node *list) {
@@ -359,6 +374,12 @@ struct node *greedy_add(struct node *list) {
 
 reset_trees(struct node *list) {
 	// Reset status of all trees in list to 1
+	struct node *last = list;
+	while (list->next != list)
+	{
+		
+	}
+	
 }
 
 void greedy_approach(void) {
