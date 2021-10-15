@@ -474,7 +474,7 @@ void greedy_approach(void) {
 		real_pos_x = position.x;
 		real_pos_y = position.y;
 		real_time = time;
-		struct node *list;
+		struct node *list = NULL;
 		while (is_time_left(1)) {
 			greedy_evaluate_all();
 			list = greedy_add(list);
