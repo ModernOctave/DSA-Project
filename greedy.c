@@ -33,6 +33,11 @@ struct Point {
 	int y;
 } position;
 
+struct node {
+	struct Tree *data;
+	struct node *next;
+};
+
 // Variable declarations
 int time = 0, time_limit, grid_size, no_trees;
 struct Tree *trees;
@@ -296,7 +301,7 @@ void sim_domino_effect(int side, struct Tree *tree) {
 	}
 }
 
-int  	domino_value(int side, struct Tree *tree) {
+int domino_value(int side, struct Tree *tree) {
 	int value = 0;
 	switch (side) {
 		case 0:
@@ -390,7 +395,7 @@ void cut(struct Tree *tree) {
 	}
 }
 
-void select(struct Tree *tree) {
+void sim_select(struct Tree *tree) {
 	int maxdir = 0;
 	int max = 0;
 	int temp = 0;
@@ -409,6 +414,7 @@ void select(struct Tree *tree) {
 int calc_distace(struct Tree *tree1){
 	return tree1->x + tree1->y - position.x - position.y;
 }
+
 struct Tree *closest_tree(struct node *list) {
 	// return closest tree to current position in list
 
@@ -438,7 +444,7 @@ struct node *greedy_add(struct node *list) {
 	struct Tree *greedy_tree = max_value_tree();
 	navigate_to(greedy_tree);
 	if (is_time_left(tree->thickness)) {
-		select(greedy_tree);
+		sim_select(greedy_tree);
 		list = insert_beginning(list, greedy_tree);
 	}
 	return list;
@@ -490,11 +496,6 @@ void greedy_approach(void) {
 }
 
 // Linked List Implementation
-struct node {
-	struct Tree *data;
-	struct node *next;
-};
-
 struct node *create_node(void) {
 	struct node *newnode = (struct node*) malloc(sizeof(struct node));
 	newnode->data=NULL;
