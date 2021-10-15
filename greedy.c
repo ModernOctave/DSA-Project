@@ -419,7 +419,7 @@ struct Tree *closest_tree(struct node *list) {
 	for(int i = 1;curr_node != list;i++)
 	{
 		close_tree = calc_distace(curr_node->data) < calc_distace(close_tree) ? curr_node->data : close_tree;
-		tree_pos = calc_distace(value_at(curr_node->data)) < calc_distace(close_tree) ? i : tree_pos;
+		tree_pos = calc_distace(curr_node->data) < calc_distace(close_tree) ? i : tree_pos;
 		curr_node = curr_node->next;
 	}
 	delete_from(list,tree_pos);
