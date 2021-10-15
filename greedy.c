@@ -343,16 +343,19 @@ int calc_distace(struct Tree *tree1){
 struct Tree *closest_tree(struct node *list) {
 	// return closest tree to current position in list
 
-	if(!list)	return;
 	struct node *curr_node = list->next;
 	struct Tree * close_tree = list;
-	for(int i = 0;curr_node != list;i++)
+	struct Tree * tree;
+	int tree_pos = 0;
+	for(int i = 1;curr_node != list;i++)
 	{
 		
-		struct Tree * tree = value_at(list,i);
-		close_tree = calc_distace(last)< calc_distace(tree) ? tree: close_tree;
+		tree = value_at(list,i);
+		close_tree = calc_distace(last) < calc_distace(tree) ? tree: close_tree;
+		tree_pos = calc_distace(last) < calc_distace(tree) ? i : tree_pos; 
 		curr_node = curr_node->next;
 	}
+	delete_from(list,tree_pos)
 	return close_tree;
 }
 
