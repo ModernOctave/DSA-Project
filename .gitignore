@@ -1,4 +1,5 @@
 run
 *.sublime-project
 *.sublime-workspace
+*.vscode
 14.c
