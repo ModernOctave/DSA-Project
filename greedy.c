@@ -51,7 +51,7 @@ struct Tree *max_value_tree(void);
 int is_time_left(int time_required);
 void navigate_to(struct Tree *tree);
 void cut(struct Tree *tree);
-void greedy_navigate(void);
+void greedy_navigate(struct node *list);
 void greedy_approach(void);
 int is_tree(int x, int y);
 struct Tree *tree_at(int x, int y);
@@ -62,6 +62,7 @@ int domino_value(int side, struct Tree *tree);
 struct node *insert_beginning(struct node *head, struct Tree *data);
 struct Tree *value_at(struct node *head, int pos);
 struct node *delete_from(struct node *head, int pos);
+struct node *delete_list(struct node *head);
 
 // Main loop
 int main(int argc, char const *argv[]) {
@@ -443,14 +444,14 @@ void greedy_navigate(struct node *list) {
 struct node *greedy_add(struct node *list) {
 	struct Tree *greedy_tree = max_value_tree();
 	navigate_to(greedy_tree);
-	if (is_time_left(tree->thickness)) {
+	if (is_time_left(greedy_tree->thickness)) {
 		sim_select(greedy_tree);
 		list = insert_beginning(list, greedy_tree);
 	}
 	return list;
 }
 
-reset_trees(struct node *list) {
+void reset_trees(struct node *list) {
 	// Reset status of all trees in list to 1
 	struct node *curr_node = list;
 	struct Tree * tree;
