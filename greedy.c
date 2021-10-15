@@ -36,6 +36,7 @@ struct Point {
 // Variable declarations
 int time = 0, time_limit, grid_size, no_trees;
 struct Tree *trees;
+struct node *domino_sim;
 
 // Function declarations
 void read_input(void);
@@ -227,7 +228,75 @@ void domino_effect(int side, struct Tree *tree) {
 	}
 }
 
-int domino_value(int side, struct Tree *tree) {
+void sim_domino_effect(int side, struct Tree *tree) {
+	switch (side) {
+		case 0:
+			for (int i = 1; i < tree->height; ++i) {
+				if (is_tree(tree->x, tree->y+i)) {
+					struct Tree *tree_under = tree_at(tree->x, tree->y+i);
+					if (tree->weight > tree_under->weight) {
+						tree_under->status = 0;
+						domino_sim = insert_beginning(domino_sim, tree_under);
+						sim_domino_effect(side, tree_under);
+					}
+					else {
+						return;
+					}
+				}
+			}
+			break;
+		case 1:
+			for (int i = 1; i <= tree->height; ++i) {
+				if (is_tree(tree->x+i, tree->y)) {
+					struct Tree *tree_under = tree_at(tree->x+i, tree->y);
+					if (tree->weight > tree_under->weight) {
+						tree_under->status = 0;
+						domino_sim = insert_beginning(domino_sim, tree_under);
+						sim_domino_effect(side, tree_under);
+					}
+					else {
+						return;
+					}
+				}
+			}
+			break;
+		case 2:
+			for (int i = 1; i <= tree->height; ++i) {
+				if (is_tree(tree->x, tree->y-i)) {
+					struct Tree *tree_under = tree_at(tree->x, tree->y-i);
+					if (tree->weight > tree_under->weight) {
+						tree_under->status = 0;
+						domino_sim = insert_beginning(domino_sim, tree_under);
+						sim_domino_effect(side, tree_under);
+					}
+					else {
+						return;
+					}
+				}
+			}
+			break;
+		case 3:
+			for (int i = 1; i <= tree->height; ++i) {
+				if (is_tree(tree->x-i, tree->y)) {
+					struct Tree *tree_under = tree_at(tree->x-i, tree->y);
+					if (tree->weight > tree_under->weight) {
+						tree_under->status = 0;
+						domino_sim = insert_beginning(domino_sim, tree_under);
+						sim_domino_effect(side, tree_under);
+					}
+					else {
+						return;
+					}
+				}
+			}
+			break;
+		default:
+			printf("Internal error! Incorrect use of function domino_effect\n");
+			break;
+	}
+}
+
+int  	domino_value(int side, struct Tree *tree) {
 	int value = 0;
 	switch (side) {
 		case 0:
@@ -334,7 +403,7 @@ void select(struct Tree *tree) {
 	}
 	time += tree->thickness;
 	tree->status = 0;
-	domino_effect(maxdir, tree);
+	sim_domino_effect(maxdir, tree);
 }
 
 int calc_distace(struct Tree *tree1){
@@ -408,7 +477,9 @@ void greedy_approach(void) {
 		position.y = real_pos_y;
 		time = real_time;
 		reset_trees(list);
-		// Reset domino trees too
+		reset_trees(domino_sim);
+		delete_list(list);
+		delete_list(domino_sim);
 
 		// Cut trees in closest greedy way
 		while (list) {
@@ -536,6 +607,21 @@ struct node *delete_from(struct node *head, int pos) {
 				free(delete);
 			}
 		}
+	}
+	return head;
+}
+
+struct node *delete_list(struct node *head) {
+	if (head) {
+		struct node *current = head;
+		struct node *delete;
+		while (current->next != head) {
+			delete = current;
+			current = current->next;
+			free(delete);
+		}
+		free(current);
+		head = NULL;
 	}
 	return head;
 }
