@@ -456,8 +456,10 @@ struct Tree *closest_tree(struct node **list) {
 
 void greedy_navigate(struct node **list) {
 	struct Tree *greedy_tree = closest_tree(list);
-	navigate_to(greedy_tree);
-	cut(greedy_tree);
+	if (greedy_tree->status) {
+		navigate_to(greedy_tree);
+		cut(greedy_tree);
+	}
 }
 
 struct node *greedy_add(struct node *list, int *status) {
@@ -508,6 +510,9 @@ void greedy_approach(void) {
 		while (status) {
 			greedy_evaluate_all();
 			list = greedy_add(list, &status);
+		}
+		if (!list) {
+			break;
 		}
 
 		// Restore the setup
@@ -646,16 +651,8 @@ struct node *delete_from(struct node *head, int pos) {
 }
 
 struct node *delete_list(struct node *head) {
-	if (head) {
-		struct node *current = head;
-		struct node *delete;
-		while (current->next != head) {
-			delete = current;
-			current = current->next;
-			free(delete);
-		}
-		free(current);
-		head = NULL;
+	while (head) {
+		head = delete_beginning(head);
 	}
 	return head;
 }
