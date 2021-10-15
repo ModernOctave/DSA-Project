@@ -153,6 +153,25 @@ void navigate_to(struct Tree *tree) {
 	}
 }
 
+void sim_navigate_to(struct Tree *tree) {
+	while (tree->x > position.x && is_time_left(1) && tree->status) {
+		position.x++;
+		time++;
+	}
+	while (tree->x < position.x && is_time_left(1) && tree->status) {
+		position.x--;
+		time++;
+	}
+	while (tree->y > position.y && is_time_left(1) && tree->status) {
+		position.y++;
+		time++;
+	}
+	while (tree->y < position.y && is_time_left(1) && tree->status) {
+		position.y--;
+		time++;
+	}
+}
+
 int is_tree(int x, int y) {
 	for (int i = 0; i < no_trees; ++i) {
 		if (trees[i].status && x == trees[i].x && y == trees[i].y) {
@@ -443,7 +462,7 @@ void greedy_navigate(struct node *list) {
 
 struct node *greedy_add(struct node *list) {
 	struct Tree *greedy_tree = max_value_tree();
-	navigate_to(greedy_tree);
+	sim_navigate_to(greedy_tree);
 	if (is_time_left(greedy_tree->thickness)) {
 		sim_select(greedy_tree);
 		list = insert_beginning(list, greedy_tree);
@@ -486,13 +505,14 @@ void greedy_approach(void) {
 		time = real_time;
 		reset_trees(list);
 		reset_trees(domino_sim);
-		delete_list(list);
-		delete_list(domino_sim);
 
 		// Cut trees in closest greedy way
 		while (list) {
 			greedy_navigate(list);
 		}
+
+		delete_list(list);
+		delete_list(domino_sim);
 	}
 }
 
