@@ -33,6 +33,7 @@ struct Point {
 	int y;
 } position;
 
+// nodes for linked list.
 struct node {
 	struct Tree *data;
 	struct node *next;
@@ -58,9 +59,8 @@ struct Tree *tree_at(int x, int y);
 void domino_effect(int side, struct Tree *tree);
 int domino_value(int side, struct Tree *tree);
 
-// Linked List Function Declarations
+// (circular) Linked List Function Declarations
 struct node *insert_beginning(struct node *head, struct Tree *data);
-struct Tree *value_at(struct node *head, int pos);
 struct node *delete_from(struct node *head, int pos);
 struct node *delete_list(struct node *head);
 
@@ -90,11 +90,13 @@ void read_input(void) {
 	}
 }
 
+// Finds rate of a tree and stores in tree list.
 void greedy_evaluate(struct Tree *tree) {
 	tree->time = abs(tree->x-position.x)+abs(tree->y-position.y)+tree->thickness;
 	tree->rate = ((float)tree->value)/tree->time;
 }
 
+// Finds rate for all trees and updates it in tree list.
 void greedy_evaluate_all(void) {
 	for (int i = 0; i < no_trees; ++i) {
 		if (trees[i].status) {
@@ -103,6 +105,7 @@ void greedy_evaluate_all(void) {
 	}
 }
 
+// Gives maximum rated uncut tree in grid.
 struct Tree *max_value_tree(void) {
 	int max = 0;
 	int max_not_set = 1;
@@ -121,6 +124,7 @@ struct Tree *max_value_tree(void) {
 	return &trees[max];
 }
 
+// Check time left for a given time input.
 int is_time_left(int time_required) {
 	if (time+time_required <= time_limit) {
 		return 1;
@@ -130,6 +134,7 @@ int is_time_left(int time_required) {
 	}
 }
 
+// navigate to a tree by printing output commands.
 void navigate_to(struct Tree *tree) {
 	while (tree->x > position.x && is_time_left(1) && tree->status) {
 		printf("move right\n");
@@ -153,6 +158,7 @@ void navigate_to(struct Tree *tree) {
 	}
 }
 
+// navigate to tree with no output(for simulation).
 void sim_navigate_to(struct Tree *tree) {
 	while (tree->x > position.x && is_time_left(1) && tree->status) {
 		position.x++;
@@ -172,6 +178,7 @@ void sim_navigate_to(struct Tree *tree) {
 	}
 }
 
+// if there is a tree or not in given position.
 int is_tree(int x, int y) {
 	for (int i = 0; i < no_trees; ++i) {
 		if (trees[i].status && x == trees[i].x && y == trees[i].y) {
@@ -181,6 +188,7 @@ int is_tree(int x, int y) {
 	return 0;
 }
 
+// Returns pointer to tree at given x,y position.
 struct Tree *tree_at(int x, int y) {
 	for (int i = 0; i < no_trees; ++i) {
 		if (x == trees[i].x && y == trees[i].y) {
@@ -189,6 +197,7 @@ struct Tree *tree_at(int x, int y) {
 	}
 }
 
+// Real domino effect which only makes tree.status as cut.
 void domino_effect(int side, struct Tree *tree) {
 	switch (side) {
 		case 0:
@@ -253,6 +262,7 @@ void domino_effect(int side, struct Tree *tree) {
 	}
 }
 
+// domino effect for simulation records tree in domino_sim list.
 void sim_domino_effect(int side, struct Tree *tree) {
 	switch (side) {
 		case 0:
@@ -321,6 +331,7 @@ void sim_domino_effect(int side, struct Tree *tree) {
 	}
 }
 
+
 int domino_value(int side, struct Tree *tree) {
 	int value = 0;
 	switch (side) {
@@ -383,6 +394,7 @@ int domino_value(int side, struct Tree *tree) {
 	return value;
 }
 
+// (real) Cut trees and prints output
 void cut(struct Tree *tree) {
 	if (is_time_left(tree->thickness)) {
 		int maxdir = 0;
@@ -415,6 +427,7 @@ void cut(struct Tree *tree) {
 	}
 }
 
+// (simulation) same as cut_trees but only includes to tree list.
 void sim_select(struct Tree *tree) {
 	int maxdir = 0;
 	int max = 0;
@@ -431,12 +444,13 @@ void sim_select(struct Tree *tree) {
 	sim_domino_effect(maxdir, tree);
 }
 
+// returns distance of a tree from current position.
 int calc_distace(struct Tree *tree1){
 	return tree1->x + tree1->y - position.x - position.y;
 }
 
+// return closest tree to current position in list
 struct Tree *closest_tree(struct node **list) {
-	// return closest tree to current position in list
 
 	struct node *curr_node = (*list)->next;
 	struct Tree * close_tree = (*list)->data;
@@ -454,6 +468,7 @@ struct Tree *closest_tree(struct node **list) {
 	return close_tree;
 }
 
+// navigates to trees from list and cuts the tree in closest path, delets the cut tree in list too.
 void greedy_navigate(struct node **list) {
 	struct Tree *greedy_tree = closest_tree(list);
 	if (greedy_tree->status) {
@@ -462,6 +477,7 @@ void greedy_navigate(struct node **list) {
 	}
 }
 
+// inserts a tree into list and its domino effect into another list.
 struct node *greedy_add(struct node *list, int *status) {
 	struct Tree *greedy_tree = max_value_tree();
 	if (greedy_tree) {
@@ -477,13 +493,13 @@ struct node *greedy_add(struct node *list, int *status) {
 	return list;
 }
 
+// Reset status of all trees in list to 1
 void reset_trees(struct node *list) {
-	// Reset status of all trees in list to 1
 	struct node *curr_node = list;
 	struct Tree * tree;
 	int i = 0;
 	do{
-		tree = value_at(list,i);
+		tree = list->data;
 		if (tree) {
 			tree->status = 1;
 			curr_node = curr_node->next;
@@ -501,8 +517,8 @@ void greedy_approach(void) {
 	int real_pos_x, real_pos_y, real_time;
 	struct node *list;
 	while (is_time_left(1)) {
-		// Create Optimal List
 		real_pos_x = position.x;
+		// Create Optimal List
 		real_pos_y = position.y;
 		real_time = time;
 		list = NULL;
@@ -567,23 +583,6 @@ struct node *insert_beginning(struct node *head, struct Tree *data) {
 	return head;
 }
 
-struct Tree *value_at(struct node *head, int pos) {
-	if (head == NULL) {
-		return NULL;
-	}
-	else {
-		struct node *currentnode = head;
-		for (int i = 0; i < pos; ++i) {
-			if (currentnode->next == head) {
-				return NULL;
-			}
-			else {
-				currentnode = currentnode->next;
-			}
-		}
-		return currentnode->data;
-	}
-}
 
 struct node *delete_beginning(struct node *head) {
 	if (head == NULL) {
