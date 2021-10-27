@@ -22,6 +22,7 @@ def greedyEvaluate(tree : Tree) :
 	time = abs(pos_x - tree.x) + abs(pos_y - tree.y) + tree.thickness
 	tree.rate = tree.value / time
 
+
 def greedyEvaluateAll():
 	# Calculate rate for all trees which are not cut using greedyEvaluate
 	for x in forest:
