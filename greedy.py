@@ -30,7 +30,20 @@ def greedyEvaluateAll():
 
 def greedyNavigate():
 	# Navigate to tree which is not cut with maximum rate in L-shape
-	pass
+	global pos_x, pos_y
+	target = forest[np.argmax([x.rate for x in forest])]
+	while pos_x < target.x:
+		print("move right")
+		pos_x += 1
+	while pos_x > target.x:
+		print("move left")
+		pos_x -= 1
+	while pos_y < target.y:
+		print("move up")
+		pos_y += 1
+	while pos_y > target.y:
+		print("move down")
+		pos_y -= 1
 
 def greedyCut(tree : Tree):
 	# cut tree in optimal direction set status of trees which fall (domino effect too) to false.
