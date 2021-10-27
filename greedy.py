@@ -163,6 +163,44 @@ def greedyCut():
 	for x in tree.domino_trees:
 		x.status = False
 
+def dominoEffect(tree : Tree, dir):
+	if tree.opt_dir == Direction.UP:
+		for i in range(1, tree.height):
+			if isTree(tree.x, tree.y+i):
+				falling_tree = forest[map[tree.x][tree.y+i]].weight
+				if tree.weight > falling_tree.weight:
+					falling_tree.status = False
+					dominoEffect(falling_tree, dir)
+				else:
+					break
+	elif tree.opt_dir == Direction.DOWN:
+		for i in range(1, tree.height):
+			if isTree(tree.x, tree.y-i):
+				falling_tree = forest[map[tree.x][tree.y-i]].weight
+				if tree.weight > falling_tree.weight:
+					falling_tree.status = False
+					dominoEffect(falling_tree, dir)
+				else:
+					break
+	elif tree.opt_dir == Direction.RIGHT:
+		for i in range(1, tree.height):
+			if isTree(tree.x+i, tree.y):
+				falling_tree = forest[map[tree.x+i][tree.y]].weight
+				if tree.weight > falling_tree.weight:
+					falling_tree.status = False
+					dominoEffect(falling_tree, dir)
+				else:
+					break
+	elif tree.opt_dir == Direction.UP:
+		for i in range(1, tree.height):
+			if isTree(tree.x-i, tree.y):
+				falling_tree = forest[map[tree.x-i][tree.y]].weight
+				if tree.weight > falling_tree.weight:
+					falling_tree.status = False
+					dominoEffect(falling_tree, dir)
+				else:
+					break
+
 def isTimeLeft(x):
 	global time_elapsed, is_time_left
 	if time_limit >= time_elapsed + x:
