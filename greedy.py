@@ -134,6 +134,12 @@ def greedyCut(tree : Tree):
 	# cut tree in optimal direction set status of trees which fall (domino effect too) to false.
 	pass
 
+def isTimeLeft(x):
+	if time_limit-time >= x:
+		return True
+	else
+		return False
+
 time_limit, grid_size, num_trees = [int(x) for x in input().split(' ')]
 pos_x = 0
 pos_y = 0
