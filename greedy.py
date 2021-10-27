@@ -14,6 +14,7 @@ class Tree:
 		self.domino_trees = []
 		self.status = True
 		self.rate = None
+		self.time = None
 
 class Direction(Enum):
 	RIGHT = 0
@@ -91,10 +92,10 @@ def dominoValueInDir(first_tree : Tree, tree : Tree, dir):
 def dominoValue(tree : Tree) :
 	# Check domino value in each direction and return max value possible and set direction in tree object.
 
-	dir_right = dominoValueInDir(tree, Direction.RIGHT)
-	dir_left = dominoValueInDir(tree, Direction.LEFT)
-	dir_up = dominoValueInDir(tree, Direction.UP)
-	dir_down = dominoValueInDir(tree, Direction.DOWN)
+	val_right = dominoValueInDir(tree, tree, Direction.RIGHT)
+	val_left = dominoValueInDir(tree, tree, Direction.LEFT)
+	val_up = dominoValueInDir(tree, tree, Direction.UP)
+	val_down = dominoValueInDir(tree, tree, Direction.DOWN)
 
 	opt_value = max(val_right, val_left, val_up, val_down)
 	if opt_value == val_right :
@@ -110,8 +111,9 @@ def dominoValue(tree : Tree) :
 
 def greedyEvaluate(tree : Tree) :
 	# Calculate rate and set in tree object
-	time = abs(pos_x - tree.x) + abs(pos_y - tree.y) + tree.thickness
-	tree.rate = tree.value / time
+	global pos_x, pos_y
+	tree.time = abs(pos_x - tree.x) + abs(pos_y - tree.y) + tree.thickness
+	tree.rate = tree.value + dominoValue(tree) / tree.time
 
 def greedyEvaluateAll():
 	# Calculate rate for all trees which are not cut using greedyEvaluate
@@ -121,8 +123,16 @@ def greedyEvaluateAll():
 
 def greedyNavigate():
 	# Navigate to tree which is not cut with maximum rate in L-shape
-	global pos_x, pos_y
-	target = forest[np.argmax([x.rate for x in forest if x.status])]
+	global pos_x, pos_y, time_elapsed, is_time_left
+	target = None;
+	for y in np.argsort([x.rate for x in forest if x.status]):
+		if isTimeLeft(forest[y].time):
+			target = forest[y]
+			print(target.x, target.y, target.time)
+			break
+	if target == None:
+		is_time_left = False
+		return
 	if isTimeLeft(target.time):
 		while pos_x < target.x:
 			print("move right")
@@ -136,46 +146,62 @@ def greedyNavigate():
 		while pos_y > target.y:
 			print("move down")
 			pos_y -= 1
-		time += target.time
+		time_elapsed += target.time
+	else:
+		is_time_left = False
 
 def greedyCut():
 	# cut tree in optimal direction set status of trees which fall (domino effect too) to false.
-	tree = forest[map[pos_x, pos_y]]
+	global pos_x, pos_y, time_elapsed, is_time_left
+	tree = forest[map[pos_x][pos_y]]
 	if isTimeLeft(tree.thickness):
 		if tree.opt_dir == Direction.UP:
 			print('cut up')
-			time += tree.thickness
+			time_elapsed += tree.thickness
 		elif tree.opt_dir == Direction.DOWN:
 			print('cut down')
-			time += tree.thickness
+			time_elapsed += tree.thickness
 		elif tree.opt_dir == Direction.RIGHT:
 			print('cut right')
-			time += tree.thickness
+			time_elapsed += tree.thickness
 		elif tree.opt_dir == Direction.LEFT:
 			print('cut left')
-			time += tree.thickness
+			time_elapsed += tree.thickness
+		print(tree.status)
 		tree.status = False
+		print(tree.status)
 		for x in tree.domino_trees:
 			x.status = False
-	
+	else:
+		is_time_left = False
 
 def isTimeLeft(x):
-	if time_limit-time >= x:
+	global time_elapsed, is_time_left
+	if time_limit >= time_elapsed + x:
 		return True
-	else
+	else:
 		return False
 
-time_limit, grid_size, num_trees = [int(x) for x in input().split(' ')]
+# Initialized variables
 pos_x = 0
 pos_y = 0
 forest = []
-# 2d array with -1 of grid_size x grid_size
+is_time_left = True
+time_elapsed = 0
+
+# Read inputs
+time_limit, grid_size, num_trees = [int(x) for x in input().split(' ')]
+
+# Initialize grid
 map = np.full((grid_size, grid_size), -1)
+
 for x in range(num_trees):
 	data = input().split(' ')
 	forest.append(Tree(int(data[0]), int(data[1]), int(data[2]), int(data[3]), int(data[4]), int(data[5])))
 	map[int(data[0])][int(data[1])] = x
 
-# print(time_limit, grid_size, num_trees)
-# print(forest)
-# print(map)
+# Main algorithm
+while is_time_left:
+	greedyEvaluateAll()
+	greedyNavigate()
+	greedyCut()
