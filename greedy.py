@@ -10,6 +10,7 @@ class Tree:
 		self.value = height * thickness * unit_value
 		self.opt_dir = None
 		self.status = True
+		self.rate = None
 
 def dominoValue(tree : Tree) :
 	# Check domino value in each direction and return max value possible and set direction in tree object.
@@ -18,8 +19,8 @@ def dominoValue(tree : Tree) :
 def greedyEvaluate(tree : Tree) :
 	# Calculate rate and set in tree object
 	global pos_x, pos_y
-	value = tree.height * tree.thickness * tree.unit_value + dominoValue(tree)
-	time = tree
+	time = abs(pos_x - tree.x) + abs(pos_y - tree.y) + tree.thickness
+	tree.rate = tree.value / time
 
 def greedyEvaluateAll():
 	# Calculate rate for all trees which are not cut using greedyEvaluate
