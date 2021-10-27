@@ -31,7 +31,7 @@ def dominoValueInDir(tree : Tree, dir):
 		for x in range(tree.height):
 			if tree.x + x < grid_size :
 				if  isTree(tree.x + x,tree.y): 
-					falling_tree = forest[map[tree.x,tree.y+x]]
+					falling_tree = forest[map[tree.x+x,tree.y]]
 					if tree.weight > falling_tree.weight:
 						val += falling_tree.value + dominoValueInDir(falling_tree, dir)
 					else:
@@ -44,8 +44,8 @@ def dominoValueInDir(tree : Tree, dir):
 		for x in range(tree.height):
 			if tree.x - x >= 0 :
 				if isTree(tree.x - x, tree.y):  
-					falling_tree = forest[map[tree.x,tree.y+x]]
-					if tree.weight > forest[map[tree.x,tree.y + x]].weight:
+					falling_tree = forest[map[tree.x-x,tree.y]]
+					if tree.weight > falling_tree.weight:
 						val += falling_tree.value + dominoValueInDir(falling_tree, dir)
 					else:
 						break
@@ -58,7 +58,7 @@ def dominoValueInDir(tree : Tree, dir):
 			if tree.y + x < grid_size:
 				if isTree(tree.x, tree.y + x): 
 					falling_tree = forest[map[tree.x,tree.y+x]]
-					if tree.weight > forest[map[tree.x, tree.y + x]].weight:
+					if tree.weight > falling_tree.weight:
 						val += falling_tree.value + dominoValueInDir(falling_tree, dir)
 					else:
 						break
@@ -70,8 +70,8 @@ def dominoValueInDir(tree : Tree, dir):
 		for x in range(tree.height):
 			if tree.y - x >= 0 :
 				if isTree(tree.x,tree.y - x):  
-					falling_tree = forest[map[tree.x,tree.y+x]]
-					if tree.weight > forest[map[tree.x, tree.y + x]].weight:
+					falling_tree = forest[map[tree.x,tree.y-x]]
+					if tree.weight > falling_tree.weight:
 						val += falling_tree.value + dominoValueInDir(falling_tree, dir)
 					else:
 						break
