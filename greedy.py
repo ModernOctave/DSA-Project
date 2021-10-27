@@ -24,7 +24,9 @@ def greedyEvaluate(tree : Tree) :
 
 def greedyEvaluateAll():
 	# Calculate rate for all trees which are not cut using greedyEvaluate
-	pass
+	for x in forest:
+		if x.status:
+			greedyEvaluate(x)
 
 def greedyNavigate():
 	# Navigate to tree which is not cut with maximum rate in L-shape
