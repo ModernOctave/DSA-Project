@@ -20,60 +20,73 @@ class Direction(Enum):
 	UP = 2
 	DOWN = 3
 
-
 def isTree(x_postion,y_postion):
 	if map[x_postion, y_postion] != -1 and forest[map[x_postion,y_postion]].status :
 		return True
 	return False
 
+def dominoValueInDir(tree : Tree, dir):
+	if dir == Direction.RIGHT:
+		val = 0
+		for x in range(tree.height):
+			if tree.x + x < grid_size :
+				if  isTree(tree.x + x,tree.y): 
+					falling_tree = forest[map[tree.x,tree.y+x]]
+					if tree.weight > falling_tree.weight:
+						val += falling_tree.value + dominoValueInDir(falling_tree, dir)
+					else:
+						break
+			else:
+				break
+
+	if dir == Direction.LEFT:
+		val = 0
+		for x in range(tree.height):
+			if tree.x - x >= 0 :
+				if isTree(tree.x - x, tree.y):  
+					falling_tree = forest[map[tree.x,tree.y+x]]
+					if tree.weight > forest[map[tree.x,tree.y + x]].weight:
+						val += falling_tree.value + dominoValueInDir(falling_tree, dir)
+					else:
+						break
+			else:
+				break
+
+	if dir == Direction.UP:
+		val = 0
+		for x in range(tree.height):
+			if tree.y + x < grid_size:
+				if isTree(tree.x, tree.y + x): 
+					falling_tree = forest[map[tree.x,tree.y+x]]
+					if tree.weight > forest[map[tree.x, tree.y + x]].weight:
+						val += falling_tree.value + dominoValueInDir(falling_tree, dir)
+					else:
+						break
+			else:
+				break
+
+	if dir == Direction.DOWN:
+		val = 0
+		for x in range(tree.height):
+			if tree.y - x >= 0 :
+				if isTree(tree.x,tree.y - x):  
+					falling_tree = forest[map[tree.x,tree.y+x]]
+					if tree.weight > forest[map[tree.x, tree.y + x]].weight:
+						val += falling_tree.value + dominoValueInDir(falling_tree, dir)
+					else:
+						break
+			else:
+				break
+
+	return val
 
 def dominoValue(tree : Tree) :
 	# Check domino value in each direction and return max value possible and set direction in tree object.
 
-	val_right = 0
-	for x in range(tree.height):
-		if tree.x + x < grid_size :
-			if  isTree(tree.x + x,tree.y): 
-				if tree.weight > forest[map[tree.x,tree.y+x]].weight:
-					val_right += forest[map[tree.x,tree.y+x]].value
-				else:
-					break
-		else:
-			break
-
-	val_left = 0
-	for x in range(tree.height):
-		if tree.x - x >= 0 :
-			if isTree(tree.x - x, tree.y): 
-				if tree.weight > forest[map[tree.x,tree.y + x]].weight:
-					val_left += forest[map[tree.x,tree.y + x]].value
-				else:
-					break
-		else:
-			break
-	
-	val_up = 0
-	for x in range(tree.height):
-		if tree.y + x < grid_size:
-			if isTree(tree.x, tree.y + x):
-				if tree.weight > forest[map[tree.x, tree.y + x]].weight:
-					val_up += forest[map[tree.x, tree.y + x]].value
-				else:
-					break
-		else:
-			break
-
-	val_down = 0
-	for x in range(tree.height):
-		if tree.y - x >= 0 :
-			if isTree(tree.x,tree.y - x): 
-				if tree.weight > forest[map[tree.x, tree.y + x]].weight:
-					val_down += forest[map[tree.x, tree.y + x]].value
-				else:
-					break
-		else:
-			break
-
+	dir_right = dominoValueInDir(tree, Direction.RIGHT)
+	dir_left = dominoValueInDir(tree, Direction.LEFT)
+	dir_up = dominoValueInDir(tree, Direction.UP)
+	dir_down = dominoValueInDir(tree, Direction.DOWN)
 
 	opt_value = max(val_right, val_left, val_up, val_down)
 	if opt_value == val_right :
@@ -86,8 +99,6 @@ def dominoValue(tree : Tree) :
 		tree.opt_dir = Direction.DOWN
 	
 	return opt_value
-	
-
 
 def greedyEvaluate(tree : Tree) :
 	# Calculate rate and set in tree object
