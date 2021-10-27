@@ -91,10 +91,10 @@ def dominoValueInDir(first_tree : Tree, tree : Tree, dir):
 def dominoValue(tree : Tree) :
 	# Check domino value in each direction and return max value possible and set direction in tree object.
 
-	dir_right = dominoValueInDir(tree, Direction.RIGHT)
-	dir_left = dominoValueInDir(tree, Direction.LEFT)
-	dir_up = dominoValueInDir(tree, Direction.UP)
-	dir_down = dominoValueInDir(tree, Direction.DOWN)
+	val_right = dominoValueInDir(tree, Direction.RIGHT)
+	val_left = dominoValueInDir(tree, Direction.LEFT)
+	val_up = dominoValueInDir(tree, Direction.UP)
+	val_down = dominoValueInDir(tree, Direction.DOWN)
 
 	opt_value = max(val_right, val_left, val_up, val_down)
 	if opt_value == val_right :
@@ -162,10 +162,11 @@ def greedyCut():
 def isTimeLeft(x):
 	if time_limit-time >= x:
 		return True
-	else
+	else:
 		return False
 
 time_limit, grid_size, num_trees = [int(x) for x in input().split(' ')]
+time = 0
 pos_x = 0
 pos_y = 0
 forest = []
