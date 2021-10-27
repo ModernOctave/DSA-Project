@@ -1,4 +1,5 @@
 import numpy as np
+from enum import Enum
 class Tree:
 	def __init__(self, x, y, height, thickness, unit_weight, unit_value):
 		self.x = x
@@ -8,17 +9,88 @@ class Tree:
 		self.unit_weight = unit_weight
 		self.unit_value = unit_value
 		self.value = height * thickness * unit_value
+		self.weight = height * thickness * unit_weight
 		self.opt_dir = None
 		self.status = True
 		self.rate = None
 
+class Direction(Enum):
+	RIGHT = 0
+	LEFT = 1
+	UP = 2
+	DOWN = 3
+
+
+def isTree(x_postion,y_postion):
+	if map[x_postion, y_postion] != -1 and forest[map[x_postion,y_postion]].status :
+		return True
+	return False
+
+
 def dominoValue(tree : Tree) :
 	# Check domino value in each direction and return max value possible and set direction in tree object.
-	pass
+
+	val_right = 0
+	for x in range(tree.height):
+		if tree.x + x < grid_size :
+			if  isTree(tree.x + x,tree.y): 
+				if tree.weight > forest[map[tree.x,tree.y+x]].weight:
+					val_right += forest[map[tree.x,tree.y+x]].value
+				else:
+					break
+		else:
+			break
+
+	val_left = 0
+	for x in range(tree.height):
+		if tree.x - x >= 0 :
+			if isTree(tree.x - x, tree.y): 
+				if tree.weight > forest[map[tree.x,tree.y + x]].weight:
+					val_left += forest[map[tree.x,tree.y + x]].value
+				else:
+					break
+		else:
+			break
+	
+	val_up = 0
+	for x in range(tree.height):
+		if tree.y + x < grid_size:
+			if isTree(tree.x, tree.y + x):
+				if tree.weight > forest[map[tree.x, tree.y + x]].weight:
+					val_up += forest[map[tree.x, tree.y + x]].value
+				else:
+					break
+		else:
+			break
+
+	val_down = 0
+	for x in range(tree.height):
+		if tree.y - x >= 0 :
+			if isTree(tree.x,tree.y - x): 
+				if tree.weight > forest[map[tree.x, tree.y + x]].weight:
+					val_down += forest[map[tree.x, tree.y + x]].value
+				else:
+					break
+		else:
+			break
+
+
+	opt_value = max(val_right, val_left, val_up, val_down)
+	if opt_value == val_right :
+		tree.opt_dir = Direction.RIGHT
+	elif opt_value == val_left:
+		tree.opt_dir = Direction.LEFT
+	elif opt_value == val_up:
+		tree.opt_dir = Direction.UP
+	else :
+		tree.opt_dir = Direction.DOWN
+	
+	return opt_value
+	
+
 
 def greedyEvaluate(tree : Tree) :
 	# Calculate rate and set in tree object
-	global pos_x, pos_y
 	time = abs(pos_x - tree.x) + abs(pos_y - tree.y) + tree.thickness
 	tree.rate = tree.value / time
 
@@ -38,7 +110,8 @@ def greedyCut(tree : Tree):
 	pass
 
 time_limit, grid_size, num_trees = [int(x) for x in input().split(' ')]
-
+pos_x = 0
+pos_y = 0
 forest = []
 # 2d array with -1 of grid_size x grid_size
 map = np.full((grid_size, grid_size), -1)
