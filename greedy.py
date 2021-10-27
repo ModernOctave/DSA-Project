@@ -31,7 +31,7 @@ def greedyEvaluateAll():
 def greedyNavigate():
 	# Navigate to tree which is not cut with maximum rate in L-shape
 	global pos_x, pos_y
-	target = forest[np.argmax([x.rate for x in forest])]
+	target = forest[np.argmax([x.rate for x in forest if x.status])]
 	while pos_x < target.x:
 		print("move right")
 		pos_x += 1
