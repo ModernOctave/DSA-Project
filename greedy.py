@@ -24,6 +24,10 @@ def greedyEvaluate(tree : Tree) :
 
 def greedyEvaluateAll():
 	# Calculate rate for all trees which are not cut using greedyEvaluate
+	for x in forest:
+		if x.status:
+			greedyEvaluate(x)
+			print(x)
 	pass
 
 def greedyNavigate():
