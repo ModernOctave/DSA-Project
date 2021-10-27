@@ -18,7 +18,6 @@ def dominoValue(tree : Tree) :
 
 def greedyEvaluate(tree : Tree) :
 	# Calculate rate and set in tree object
-	global pos_x, pos_y
 	time = abs(pos_x - tree.x) + abs(pos_y - tree.y) + tree.thickness
 	tree.rate = tree.value / time
 
@@ -37,7 +36,8 @@ def greedyCut(tree : Tree):
 	pass
 
 time_limit, grid_size, num_trees = [int(x) for x in input().split(' ')]
-
+pos_x = 0
+pos_y = 0
 forest = []
 # 2d array with -1 of grid_size x grid_size
 map = np.full((grid_size, grid_size), -1)
