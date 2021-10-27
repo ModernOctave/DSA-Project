@@ -11,7 +11,6 @@ class Tree:
 		self.value = height * thickness * unit_value
 		self.weight = height * thickness * unit_weight
 		self.opt_dir = None
-		self.domino_trees = []
 		self.status = True
 		self.rate = None
 		self.time = None
@@ -38,8 +37,7 @@ def dominoValueInDir(first_tree : Tree, tree : Tree, dir):
 				if  isTree(tree.x + x,tree.y): 
 					falling_tree = forest[map[tree.x+x,tree.y]]
 					if tree.weight > falling_tree.weight:
-						val += falling_tree.value + dominoValueInDir(first_tree, falling_tree, dir)
-						first_tree.domino_trees.append(falling_tree)
+						val += tree.value
 					else:
 						break
 			else:
@@ -52,8 +50,7 @@ def dominoValueInDir(first_tree : Tree, tree : Tree, dir):
 				if isTree(tree.x - x, tree.y):  
 					falling_tree = forest[map[tree.x-x,tree.y]]
 					if tree.weight > falling_tree.weight:
-						val += falling_tree.value + dominoValueInDir(first_tree, falling_tree, dir)
-						first_tree.domino_trees.append(falling_tree)
+						val += tree.value
 					else:
 						break
 			else:
@@ -66,8 +63,7 @@ def dominoValueInDir(first_tree : Tree, tree : Tree, dir):
 				if isTree(tree.x, tree.y + x): 
 					falling_tree = forest[map[tree.x,tree.y+x]]
 					if tree.weight > falling_tree.weight:
-						val += falling_tree.value + dominoValueInDir(first_tree, falling_tree, dir)
-						first_tree.domino_trees.append(falling_tree)
+						val += falling_tree.value
 					else:
 						break
 			else:
@@ -80,8 +76,7 @@ def dominoValueInDir(first_tree : Tree, tree : Tree, dir):
 				if isTree(tree.x,tree.y - x):  
 					falling_tree = forest[map[tree.x,tree.y-x]]
 					if tree.weight > falling_tree.weight:
-						val += falling_tree.value + dominoValueInDir(first_tree, falling_tree, dir)
-						first_tree.domino_trees.append(falling_tree)
+						val += falling_tree.value
 					else:
 						break
 			else:
@@ -123,7 +118,7 @@ def greedyEvaluateAll():
 def greedyNavigate():
 	# Navigate to tree which is not cut with maximum rate in L-shape
 	global pos_x, pos_y, time_elapsed, is_time_left
-	target = None;
+	target = None
 	for y in np.argsort([-x.rate for x in forest if x.status]):
 		if isTimeLeft(forest[y].time):
 			target = forest[y]
@@ -192,7 +187,6 @@ for x in range(num_trees):
 	data = input().split(' ')
 	forest.append(Tree(int(data[0]), int(data[1]), int(data[2]), int(data[3]), int(data[4]), int(data[5])))
 	map[int(data[0])][int(data[1])] = x
-
 # Main algorithm
 while is_time_left:
 	greedyEvaluateAll()
