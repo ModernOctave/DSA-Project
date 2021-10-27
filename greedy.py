@@ -144,6 +144,12 @@ def greedyCut():
 			x.status = False
 	
 
+def isTimeLeft(x):
+	if time_limit-time >= x:
+		return True
+	else
+		return False
+
 time_limit, grid_size, num_trees = [int(x) for x in input().split(' ')]
 pos_x = 0
 pos_y = 0
