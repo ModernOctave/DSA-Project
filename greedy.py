@@ -168,7 +168,7 @@ def greedyNavigate():
 	# Navigate to tree which is not cut with maximum rate in L-shape
 	global pos_x, pos_y, time_elapsed, is_time_left
 	target = None
-	for y in np.argsort([-1*x.rate for x in forest]):
+	for y in np.argsort([-1*x.rate for x in forest]):	# To see.
 		if forest[y].status and isTimeLeft(forest[y].time):
 			target = forest[y]
 			break
