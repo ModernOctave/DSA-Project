@@ -119,29 +119,26 @@ def greedyNavigate():
 	# Navigate to tree which is not cut with maximum rate in L-shape
 	global pos_x, pos_y, time_elapsed, is_time_left
 	target = None
-	for y in np.argsort([-x.rate for x in forest]):
+	for y in np.argsort([-1*x.rate for x in forest]):
 		if forest[y].status and isTimeLeft(forest[y].time):
 			target = forest[y]
 			break
 	if target == None:
 		is_time_left = False
 		return
-	if isTimeLeft(target.time):
-		while pos_x < target.x:
-			print("move right")
-			pos_x += 1
-		while pos_x > target.x:
-			print("move left")
-			pos_x -= 1
-		while pos_y < target.y:
-			print("move up")
-			pos_y += 1
-		while pos_y > target.y:
-			print("move down")
-			pos_y -= 1
-		time_elapsed += target.time
-	else:
-		is_time_left = False
+	while pos_x < target.x:
+		print("move right")
+		pos_x += 1
+	while pos_x > target.x:
+		print("move left")
+		pos_x -= 1
+	while pos_y < target.y:
+		print("move up")
+		pos_y += 1
+	while pos_y > target.y:
+		print("move down")
+		pos_y -= 1
+	time_elapsed += target.time
 
 def greedyCut():
 	# cut tree in optimal direction set status of trees which fall (domino effect too) to false.
@@ -160,14 +157,13 @@ def greedyCut():
 		print('cut left')
 		time_elapsed += tree.thickness
 	tree.status = False
-	for x in tree.domino_trees:
-		x.status = False
+	dominoEffect(tree, tree.opt_dir)
 
 def dominoEffect(tree : Tree, dir):
 	if tree.opt_dir == Direction.UP:
 		for i in range(1, tree.height):
 			if isTree(tree.x, tree.y+i):
-				falling_tree = forest[map[tree.x][tree.y+i]].weight
+				falling_tree = forest[map[tree.x][tree.y+i]]
 				if tree.weight > falling_tree.weight:
 					falling_tree.status = False
 					dominoEffect(falling_tree, dir)
@@ -176,7 +172,7 @@ def dominoEffect(tree : Tree, dir):
 	elif tree.opt_dir == Direction.DOWN:
 		for i in range(1, tree.height):
 			if isTree(tree.x, tree.y-i):
-				falling_tree = forest[map[tree.x][tree.y-i]].weight
+				falling_tree = forest[map[tree.x][tree.y-i]]
 				if tree.weight > falling_tree.weight:
 					falling_tree.status = False
 					dominoEffect(falling_tree, dir)
@@ -185,7 +181,7 @@ def dominoEffect(tree : Tree, dir):
 	elif tree.opt_dir == Direction.RIGHT:
 		for i in range(1, tree.height):
 			if isTree(tree.x+i, tree.y):
-				falling_tree = forest[map[tree.x+i][tree.y]].weight
+				falling_tree = forest[map[tree.x+i][tree.y]]
 				if tree.weight > falling_tree.weight:
 					falling_tree.status = False
 					dominoEffect(falling_tree, dir)
@@ -194,7 +190,7 @@ def dominoEffect(tree : Tree, dir):
 	elif tree.opt_dir == Direction.UP:
 		for i in range(1, tree.height):
 			if isTree(tree.x-i, tree.y):
-				falling_tree = forest[map[tree.x-i][tree.y]].weight
+				falling_tree = forest[map[tree.x-i][tree.y]]
 				if tree.weight > falling_tree.weight:
 					falling_tree.status = False
 					dominoEffect(falling_tree, dir)
