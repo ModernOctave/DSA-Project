@@ -116,6 +116,7 @@ def greedyEvaluateAll():
 	for x in forest:
 		if x.status:
 			greedyEvaluate(x)
+	print([x.status for x in forest])
 
 def greedyNavigate():
 	# Navigate to tree which is not cut with maximum rate in L-shape
@@ -163,7 +164,7 @@ def greedyCut():
 	dominoEffect(tree, tree.opt_dir)
 
 def dominoEffect(tree : Tree, dir):
-	if tree.opt_dir == Direction.UP:
+	if dir == Direction.UP:
 		for i in range(1, tree.height+1):
 			if isTree(tree.x, tree.y+i):
 				falling_tree = forest[map[tree.x][tree.y+i]]
@@ -174,7 +175,7 @@ def dominoEffect(tree : Tree, dir):
 				else:
 					# break
 					pass
-	elif tree.opt_dir == Direction.DOWN:
+	elif dir == Direction.DOWN:
 		for i in range(1, tree.height+1):
 			if isTree(tree.x, tree.y-i):
 				falling_tree = forest[map[tree.x][tree.y-i]]
@@ -185,7 +186,7 @@ def dominoEffect(tree : Tree, dir):
 				else:
 					# break
 					pass
-	elif tree.opt_dir == Direction.RIGHT:
+	elif dir == Direction.RIGHT:
 		for i in range(1, tree.height+1):
 			if isTree(tree.x+i, tree.y):
 				falling_tree = forest[map[tree.x+i][tree.y]]
@@ -196,7 +197,7 @@ def dominoEffect(tree : Tree, dir):
 				else:
 					# break
 					pass
-	elif tree.opt_dir == Direction.UP:
+	elif dir == Direction.LEFT:
 		for i in range(1, tree.height+1):
 			if isTree(tree.x-i, tree.y):
 				falling_tree = forest[map[tree.x-i][tree.y]]
