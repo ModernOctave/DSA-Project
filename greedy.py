@@ -116,7 +116,7 @@ def greedyEvaluateAll():
 	for x in forest:
 		if x.status:
 			greedyEvaluate(x)
-	print([x.status for x in forest])
+	# print([x.status for x in forest])
 
 def greedyNavigate():
 	# Navigate to tree which is not cut with maximum rate in L-shape
