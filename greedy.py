@@ -44,6 +44,7 @@ def returnAffects(tree :Tree, dir):
 							tree.affects_right.append(falling_tree)
 							if tree.x + tree.height < falling_tree.x + falling_tree.height:
 								tree.affects_right.extend(returnAffects(falling_tree, dir))
+								break
 						else:
 							break
 				else:
@@ -62,13 +63,13 @@ def returnAffects(tree :Tree, dir):
 							tree.affects_left.append(falling_tree)
 							if tree.x - tree.height > falling_tree.x - falling_tree.height:
 								tree.affects_left.extend(returnAffects(falling_tree, dir))
+								break
 						else:
 							break
 				else:
 					break
 
 		return tree.affects_left
-		
 	if dir == Direction.UP:
 		if not tree.affects_up:
 			# Calculate for up
@@ -80,6 +81,7 @@ def returnAffects(tree :Tree, dir):
 							tree.affects_up.append(falling_tree)
 							if tree.y + tree.height < falling_tree.y + falling_tree.height:
 								tree.affects_up.extend(returnAffects(falling_tree, dir))
+								break
 						else:
 							break
 				else:
@@ -98,6 +100,7 @@ def returnAffects(tree :Tree, dir):
 							tree.affects_down.append(falling_tree)
 							if tree.y - tree.height > falling_tree.y - falling_tree.height:
 								tree.affects_down.extend(returnAffects(falling_tree, dir))
+								break
 						else:
 							break	
 				else:
@@ -155,7 +158,8 @@ def greedyEvaluate(tree : Tree) :
 	# Calculate rate and set in tree object
 	global pos_x, pos_y
 	tree.time = abs(pos_x - tree.x) + abs(pos_y - tree.y) + tree.thickness
-	tree.rate = (tree.value + dominoValue(tree)) / tree.time
+	tree.rate = (tree.value + dominoValue(tree)) / tree.time**2
+
 
 def greedyEvaluateAll():
 	# Calculate rate for all trees which are not cut using greedyEvaluate
@@ -287,3 +291,9 @@ while is_time_left:
 	greedyNavigate()
 	if is_time_left:
 		greedyCut()
+		# empty all affects_dir lists of forests to none
+		for tree in forest:
+			tree.affects_up = []
+			tree.affects_down = []
+			tree.affects_left = []
+			tree.affects_right = []
