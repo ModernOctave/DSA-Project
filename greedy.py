@@ -36,7 +36,7 @@ def returnAffects(tree :Tree, dir):
 	if dir == Direction.RIGHT:
 		if not tree.affects_right:
 			# Calculate right
-			for i in range(1, tree.height+1):
+			for i in range(1, tree.height):
 				if tree.x + i < grid_size :
 					if  isTree(tree.x + i,tree.y):
 						falling_tree = forest[map[tree.x+i,tree.y]]
@@ -54,7 +54,7 @@ def returnAffects(tree :Tree, dir):
 	if dir == Direction.LEFT:
 		if not tree.affects_left:
 			# Calculate for left
-			for i in range(1, tree.height+1):
+			for i in range(1, tree.height):
 				if tree.x - i >= 0 :
 					if isTree(tree.x - i, tree.y):  
 						falling_tree = forest[map[tree.x-i,tree.y]]
@@ -72,7 +72,7 @@ def returnAffects(tree :Tree, dir):
 	if dir == Direction.UP:
 		if not tree.affects_up:
 			# Calculate for up
-			for i in range(1, tree.height+1):
+			for i in range(1, tree.height):
 				if tree.y + i < grid_size :
 					if isTree(tree.x, tree.y + i):
 						falling_tree = forest[map[tree.x,tree.y+i]]
@@ -90,7 +90,7 @@ def returnAffects(tree :Tree, dir):
 	if dir == Direction.DOWN:
 		if not tree.affects_down:
 			# Calculate for down
-			for i in range(1, tree.height+1):
+			for i in range(1, tree.height):
 				if tree.y - i >= 0 :
 					if isTree(tree.x, tree.y - i):
 						falling_tree = forest[map[tree.x,tree.y-i]]
