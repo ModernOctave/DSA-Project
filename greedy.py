@@ -22,8 +22,10 @@ class Direction(Enum):
 	DOWN = 3
 
 def isTree(x_postion,y_postion):
-	if map[x_postion, y_postion] != -1 and forest[map[x_postion,y_postion]].status :
-		return True
+	if x_postion < grid_size and x_postion >=0:
+		if y_postion < grid_size and y_postion >=0:
+			if map[x_postion, y_postion] != -1 and forest[map[x_postion,y_postion]].status :
+				return True
 	return False
 
 def dominoValueInDir(first_tree : Tree, tree : Tree, dir):
@@ -32,12 +34,12 @@ def dominoValueInDir(first_tree : Tree, tree : Tree, dir):
 
 	if dir == Direction.RIGHT:
 		val = 0
-		for x in range(1, tree.height):
+		for x in range(1, tree.height+1):
 			if tree.x + x < grid_size :
 				if  isTree(tree.x + x,tree.y): 
 					falling_tree = forest[map[tree.x+x,tree.y]]
 					if tree.weight > falling_tree.weight:
-						val += tree.value
+						val += falling_tree.value
 					else:
 						break
 			else:
@@ -45,12 +47,12 @@ def dominoValueInDir(first_tree : Tree, tree : Tree, dir):
 
 	if dir == Direction.LEFT:
 		val = 0
-		for x in range(1, tree.height):
+		for x in range(1, tree.height+1):
 			if tree.x - x >= 0 :
 				if isTree(tree.x - x, tree.y):  
 					falling_tree = forest[map[tree.x-x,tree.y]]
 					if tree.weight > falling_tree.weight:
-						val += tree.value
+						val += falling_tree.value
 					else:
 						break
 			else:
@@ -58,7 +60,7 @@ def dominoValueInDir(first_tree : Tree, tree : Tree, dir):
 
 	if dir == Direction.UP:
 		val = 0
-		for x in range(1, tree.height):
+		for x in range(1, tree.height+1):
 			if tree.y + x < grid_size:
 				if isTree(tree.x, tree.y + x): 
 					falling_tree = forest[map[tree.x,tree.y+x]]
@@ -71,7 +73,7 @@ def dominoValueInDir(first_tree : Tree, tree : Tree, dir):
 
 	if dir == Direction.DOWN:
 		val = 0
-		for x in range(1, tree.height):
+		for x in range(1, tree.height+1):
 			if tree.y - x >= 0 :
 				if isTree(tree.x,tree.y - x):  
 					falling_tree = forest[map[tree.x,tree.y-x]]
@@ -107,7 +109,7 @@ def greedyEvaluate(tree : Tree) :
 	# Calculate rate and set in tree object
 	global pos_x, pos_y
 	tree.time = abs(pos_x - tree.x) + abs(pos_y - tree.y) + tree.thickness
-	tree.rate = tree.value + dominoValue(tree) / tree.time
+	tree.rate = (tree.value + dominoValue(tree)) / tree.time
 
 def greedyEvaluateAll():
 	# Calculate rate for all trees which are not cut using greedyEvaluate
@@ -157,45 +159,54 @@ def greedyCut():
 		print('cut left')
 		time_elapsed += tree.thickness
 	tree.status = False
+	tree.rate = 0
 	dominoEffect(tree, tree.opt_dir)
 
 def dominoEffect(tree : Tree, dir):
 	if tree.opt_dir == Direction.UP:
-		for i in range(1, tree.height):
+		for i in range(1, tree.height+1):
 			if isTree(tree.x, tree.y+i):
 				falling_tree = forest[map[tree.x][tree.y+i]]
 				if tree.weight > falling_tree.weight:
 					falling_tree.status = False
+					falling_tree.rate = 0
 					dominoEffect(falling_tree, dir)
 				else:
-					break
+					# break
+					pass
 	elif tree.opt_dir == Direction.DOWN:
-		for i in range(1, tree.height):
+		for i in range(1, tree.height+1):
 			if isTree(tree.x, tree.y-i):
 				falling_tree = forest[map[tree.x][tree.y-i]]
 				if tree.weight > falling_tree.weight:
 					falling_tree.status = False
+					falling_tree.rate = 0
 					dominoEffect(falling_tree, dir)
 				else:
-					break
+					# break
+					pass
 	elif tree.opt_dir == Direction.RIGHT:
-		for i in range(1, tree.height):
+		for i in range(1, tree.height+1):
 			if isTree(tree.x+i, tree.y):
 				falling_tree = forest[map[tree.x+i][tree.y]]
 				if tree.weight > falling_tree.weight:
 					falling_tree.status = False
+					falling_tree.rate = 0
 					dominoEffect(falling_tree, dir)
 				else:
-					break
+					# break
+					pass
 	elif tree.opt_dir == Direction.UP:
-		for i in range(1, tree.height):
+		for i in range(1, tree.height+1):
 			if isTree(tree.x-i, tree.y):
 				falling_tree = forest[map[tree.x-i][tree.y]]
 				if tree.weight > falling_tree.weight:
 					falling_tree.status = False
+					falling_tree.rate = 0
 					dominoEffect(falling_tree, dir)
 				else:
-					break
+					# break
+					pass
 
 def isTimeLeft(x):
 	global time_elapsed, is_time_left
