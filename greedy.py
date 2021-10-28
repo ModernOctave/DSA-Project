@@ -14,7 +14,11 @@ class Tree:
 		self.status = True
 		self.rate = None
 		self.time = None
-
+		self.affects_up = []
+		self.affects_down = []
+		self.affects_left = []
+		self.affects_right = []
+		
 class Direction(Enum):
 	RIGHT = 0
 	LEFT = 1
@@ -28,71 +32,113 @@ def isTree(x_postion,y_postion):
 				return True
 	return False
 
-def dominoValueInDir(first_tree : Tree, tree : Tree, dir):
-	if first_tree == tree:
-		first_tree.domino_trees = []
-
+def returnAffects(tree :Tree, dir):
 	if dir == Direction.RIGHT:
-		val = 0
-		for x in range(1, tree.height+1):
-			if tree.x + x < grid_size :
-				if  isTree(tree.x + x,tree.y): 
-					falling_tree = forest[map[tree.x+x,tree.y]]
-					if tree.weight > falling_tree.weight:
-						val += falling_tree.value
-					else:
-						break
-			else:
-				break
+		if not tree.affects_right:
+			# Calculate right
+			for i in range(1, tree.height+1):
+				if tree.x + i < grid_size :
+					if  isTree(tree.x + i,tree.y):
+						falling_tree = forest[map[tree.x+i,tree.y]]
+						if tree.weight > falling_tree.weight:
+							tree.affects_right.append(falling_tree)
+							if tree.x + tree.height < falling_tree.x + falling_tree.height:
+								tree.affects_right.extend(returnAffects(falling_tree, dir))
+						else:
+							break
+				else:
+					break
+		
+		return tree.affects_right
 
 	if dir == Direction.LEFT:
-		val = 0
-		for x in range(1, tree.height+1):
-			if tree.x - x >= 0 :
-				if isTree(tree.x - x, tree.y):  
-					falling_tree = forest[map[tree.x-x,tree.y]]
-					if tree.weight > falling_tree.weight:
-						val += falling_tree.value
-					else:
-						break
-			else:
-				break
+		if not tree.affects_left:
+			# Calculate for left
+			for i in range(1, tree.height+1):
+				if tree.x - i >= 0 :
+					if isTree(tree.x - i, tree.y):  
+						falling_tree = forest[map[tree.x-i,tree.y]]
+						if tree.weight > falling_tree.weight:
+							tree.affects_left.append(falling_tree)
+							if tree.x - tree.height > falling_tree.x - falling_tree.height:
+								tree.affects_left.extend(returnAffects(falling_tree, dir))
+						else:
+							break
+				else:
+					break
 
+		return tree.affects_left
+		
 	if dir == Direction.UP:
-		val = 0
-		for x in range(1, tree.height+1):
-			if tree.y + x < grid_size:
-				if isTree(tree.x, tree.y + x): 
-					falling_tree = forest[map[tree.x,tree.y+x]]
-					if tree.weight > falling_tree.weight:
-						val += falling_tree.value
-					else:
-						break
-			else:
-				break
-
+		if not tree.affects_up:
+			# Calculate for up
+			for i in range(1, tree.height+1):
+				if tree.y + i < grid_size :
+					if isTree(tree.x, tree.y + i):
+						falling_tree = forest[map[tree.x,tree.y+i]]
+						if tree.weight > falling_tree.weight:
+							tree.affects_up.append(falling_tree)
+							if tree.y + tree.height < falling_tree.y + falling_tree.height:
+								tree.affects_up.extend(returnAffects(falling_tree, dir))
+						else:
+							break
+				else:
+					break
+					
+		return tree.affects_up
+		
 	if dir == Direction.DOWN:
-		val = 0
-		for x in range(1, tree.height+1):
-			if tree.y - x >= 0 :
-				if isTree(tree.x,tree.y - x):  
-					falling_tree = forest[map[tree.x,tree.y-x]]
-					if tree.weight > falling_tree.weight:
-						val += falling_tree.value
-					else:
-						break
-			else:
-				break
+		if not tree.affects_down:
+			# Calculate for down
+			for i in range(1, tree.height+1):
+				if tree.y - i >= 0 :
+					if isTree(tree.x, tree.y - i):
+						falling_tree = forest[map[tree.x,tree.y-i]]
+						if tree.weight > falling_tree.weight:
+							tree.affects_down.append(falling_tree)
+							if tree.y - tree.height > falling_tree.y - falling_tree.height:
+								tree.affects_down.extend(returnAffects(falling_tree, dir))
+						else:
+							break	
+				else:
+					break			
+		return tree.affects_down
 
+def dominoValueInDir( tree : Tree, dir):
+	val = 0
+	dominoTrees = [x for x in returnAffects(tree, dir) if x.status]
+	for falling_tree in dominoTrees:
+		val += falling_tree.value
 	return val
+			
+	# if dir == Direction.RIGHT:
+		
+	# if dir == Direction.LEFT:
+	# 	val = 0
+	# 	dominoTrees = [x for x in tree.affects_left if forest.status]
+	# 	for falling_tree in dominoTrees:
+	# 		val += falling_tree.value
+	# 		if tree.x - tree.height > falling_tree.x - falling_tree.height:
+	# 			val += dominoValueInDir(falling_tree, dir)
+
+	# if dir == Direction.UP:
+	# 	val = 0
+	# 	dominoTrees = [x for x in tree.affects_up if forest.status]
+		
+	# if dir == Direction.DOWN:
+	# 	val = 0
+	# 	dominoTrees = [x for x in tree.affects_down if forest.status]
+
+	# add the value of each tree in dominoTrees to val
+
 
 def dominoValue(tree : Tree) :
 	# Check domino value in each direction and return max value possible and set direction in tree object.
 
-	val_right = dominoValueInDir(tree, tree, Direction.RIGHT)
-	val_left = dominoValueInDir(tree, tree, Direction.LEFT)
-	val_up = dominoValueInDir(tree, tree, Direction.UP)
-	val_down = dominoValueInDir(tree, tree, Direction.DOWN)
+	val_right = dominoValueInDir(tree, Direction.RIGHT)
+	val_left = dominoValueInDir( tree, Direction.LEFT)
+	val_up = dominoValueInDir( tree, Direction.UP)
+	val_down = dominoValueInDir( tree, Direction.DOWN)
 	opt_value = max(val_right, val_left, val_up, val_down)
 	if opt_value == val_right:
 		tree.opt_dir = Direction.RIGHT
@@ -102,7 +148,7 @@ def dominoValue(tree : Tree) :
 		tree.opt_dir = Direction.UP
 	else :
 		tree.opt_dir = Direction.DOWN
-	
+	# print(val_right, val_left, val_up, val_down)
 	return opt_value
 
 def greedyEvaluate(tree : Tree) :
@@ -164,50 +210,52 @@ def greedyCut():
 	dominoEffect(tree, tree.opt_dir)
 
 def dominoEffect(tree : Tree, dir):
-	if dir == Direction.UP:
-		for i in range(1, tree.height+1):
-			if isTree(tree.x, tree.y+i):
-				falling_tree = forest[map[tree.x][tree.y+i]]
-				if tree.weight > falling_tree.weight:
-					falling_tree.status = False
-					falling_tree.rate = 0
-					dominoEffect(falling_tree, dir)
-				else:
-					# break
-					pass
-	elif dir == Direction.DOWN:
-		for i in range(1, tree.height+1):
-			if isTree(tree.x, tree.y-i):
-				falling_tree = forest[map[tree.x][tree.y-i]]
-				if tree.weight > falling_tree.weight:
-					falling_tree.status = False
-					falling_tree.rate = 0
-					dominoEffect(falling_tree, dir)
-				else:
-					# break
-					pass
-	elif dir == Direction.RIGHT:
-		for i in range(1, tree.height+1):
-			if isTree(tree.x+i, tree.y):
-				falling_tree = forest[map[tree.x+i][tree.y]]
-				if tree.weight > falling_tree.weight:
-					falling_tree.status = False
-					falling_tree.rate = 0
-					dominoEffect(falling_tree, dir)
-				else:
-					# break
-					pass
-	elif dir == Direction.LEFT:
-		for i in range(1, tree.height+1):
-			if isTree(tree.x-i, tree.y):
-				falling_tree = forest[map[tree.x-i][tree.y]]
-				if tree.weight > falling_tree.weight:
-					falling_tree.status = False
-					falling_tree.rate = 0
-					dominoEffect(falling_tree, dir)
-				else:
-					# break
-					pass
+	dominoTrees = [x for x in returnAffects(tree, dir) if x.status]
+	for falling_tree in dominoTrees:
+		falling_tree.status = False
+		falling_tree.rate = 0
+
+	# if dir == Direction.UP:
+	# 	for i in range(1, tree.height+1):
+	# 		if isTree(tree.x, tree.y+i):
+	# 			falling_tree = forest[map[tree.x][tree.y+i]]
+	# 			if tree.weight > falling_tree.weight:
+	# 				falling_tree.status = False
+	# 				falling_tree.rate = 0
+	# 				if tree.y + tree.height < falling_tree.y + falling_tree.height:
+	# 					dominoEffect(falling_tree, dir)
+	# 			else:
+	# 				break
+	# elif dir == Direction.DOWN:
+	# 	for i in range(1, tree.height+1):
+	# 		if isTree(tree.x, tree.y-i):
+	# 			falling_tree = forest[map[tree.x][tree.y-i]]
+	# 			if tree.weight > falling_tree.weight:
+	# 				falling_tree.status = False
+	# 				falling_tree.rate = 0
+	# 				dominoEffect(falling_tree, dir)
+	# 			else:
+	# 				break
+	# elif dir == Direction.RIGHT:
+	# 	for i in range(1, tree.height+1):
+	# 		if isTree(tree.x+i, tree.y):
+	# 			falling_tree = forest[map[tree.x+i][tree.y]]
+	# 			if tree.weight > falling_tree.weight:
+	# 				falling_tree.status = False
+	# 				falling_tree.rate = 0
+	# 				dominoEffect(falling_tree, dir)
+	# 			else:
+	# 				break
+	# elif dir == Direction.LEFT:
+	# 	for i in range(1, tree.height+1):
+	# 		if isTree(tree.x-i, tree.y):
+	# 			falling_tree = forest[map[tree.x-i][tree.y]]
+	# 			if tree.weight > falling_tree.weight:
+	# 				falling_tree.status = False
+	# 				falling_tree.rate = 0
+	# 				dominoEffect(falling_tree, dir)
+	# 			else:
+	# 				break
 
 def isTimeLeft(x):
 	global time_elapsed, is_time_left
