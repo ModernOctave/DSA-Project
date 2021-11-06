@@ -43,6 +43,7 @@ struct node {
 int time = 0, time_limit, grid_size, no_trees;
 struct Tree *trees;
 struct node *domino_sim;
+int **map;
 
 // Function declarations
 void read_input(void);
@@ -77,6 +78,17 @@ void read_input(void) {
 	scanf(" %d", &grid_size);
 	scanf(" %d", &no_trees);
 	trees = (struct Tree *) malloc(sizeof(struct Tree)*no_trees);
+	map = (int **) malloc(sizeof(int *) * grid_size);
+	for (int i = 0; i < grid_size; i++) {
+		map[i] = (int *) malloc(sizeof(int) * grid_size);
+	}
+	for (int i = 0; i < grid_size; i++) {
+		for (int j = 0; j < grid_size; j++) {
+			map[i][j] = -1;
+		}	
+	}
+	
+	
 	for (int i = 0; i < no_trees; ++i) {
 		scanf(" %d", &trees[i].x);
 		scanf(" %d", &trees[i].y);
@@ -87,6 +99,7 @@ void read_input(void) {
 		trees[i].status = 1;
 		trees[i].value = trees[i].unit_value * trees[i].height * trees[i].thickness;
 		trees[i].weight = trees[i].unit_weight * trees[i].height * trees[i].thickness;
+		map[trees[i].x][trees[i].y] = i;
 	}
 }
 
@@ -180,8 +193,8 @@ void sim_navigate_to(struct Tree *tree) {
 
 // if there is a tree or not in given position.
 int is_tree(int x, int y) {
-	for (int i = 0; i < no_trees; ++i) {
-		if (trees[i].status && x == trees[i].x && y == trees[i].y) {
+	if (x >= 0 && x < grid_size && y >= 0 && y < grid_size) {
+		if (map[x][y] != -1) {
 			return 1;
 		}
 	}
@@ -190,11 +203,7 @@ int is_tree(int x, int y) {
 
 // Returns pointer to tree at given x,y position.
 struct Tree *tree_at(int x, int y) {
-	for (int i = 0; i < no_trees; ++i) {
-		if (x == trees[i].x && y == trees[i].y) {
-			return &trees[i];
-		}
-	}
+	return &trees[map[x][y]];
 }
 
 // Real domino effect which only makes tree.status as cut.
@@ -446,7 +455,7 @@ void sim_select(struct Tree *tree) {
 
 // returns distance of a tree from current position.
 int calc_distace(struct Tree *tree1){
-	return tree1->x + tree1->y - position.x - position.y;
+	return abs(tree1->x - position.x) + abs(tree1->y - position.y);
 }
 
 // return closest tree to current position in list
@@ -454,7 +463,6 @@ struct Tree *closest_tree(struct node **list) {
 
 	struct node *curr_node = (*list)->next;
 	struct Tree * close_tree = (*list)->data;
-	struct Tree * tree;
 	int tree_pos = 0;
 	for(int i = 1;curr_node != *list;i++)
 	{
@@ -499,7 +507,7 @@ void reset_trees(struct node *list) {
 	struct Tree * tree;
 	int i = 0;
 	do{
-		tree = list->data;
+		tree = curr_node->data;
 		if (tree) {
 			tree->status = 1;
 			curr_node = curr_node->next;
